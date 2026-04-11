@@ -30,4 +30,4 @@ An interactive Hangman game built using Python and Tkinter. This version replace
 - Better UI design
 
 ## Author
-Shaily
+Shaily Dadriwal
