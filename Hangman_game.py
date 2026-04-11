@@ -28,7 +28,7 @@ def load_words():
 
 word_data = load_words()
 
-# ------------------ App ------------------
+# ------------------Actual App ------------------
 class HangmanApp:
     def __init__(self, root):
         self.root = root
