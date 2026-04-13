@@ -33,8 +33,8 @@ class HangmanApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Hangman Game")
-        self.root.geometry("600x600")
-        self.canvas = tk.Canvas(root, width=600, height=600)
+        self.root.geometry("600x400")
+        self.canvas = tk.Canvas(root, width=600, height=400)
         self.canvas.pack(fill="both", expand=True)
         self.current_word = ""
         self.guessed_letters = []
