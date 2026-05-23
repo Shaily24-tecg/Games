@@ -1,7 +1,8 @@
 import tkinter as tk
 import random
 import winsound
-from PIL import Image, ImageTk
+from PIL import Image as PILImage
+from PIL import ImageTk
 from tkinter import *
 from tkvideo import tkvideo
 
@@ -44,10 +45,11 @@ class HangmanApp:
         self.root.resizable(False, False)
 
         self.canvas = tk.Canvas(
-            root,
-            width=600,
-            height=400,
-            highlightthickness=0
+        root,
+        width=600,
+        height=400,
+        bg="black",
+        highlightthickness=0
         )
 
         self.canvas.pack(fill="both", expand=True)
@@ -62,7 +64,7 @@ class HangmanApp:
     # ------------------ Background ------------------
     def set_background(self, image_name):
 
-        self.bg_image = Image.open(image_name)
+        self.bg_image = PILImage.open(image_name)
         self.bg_image = self.bg_image.resize((600, 400))
 
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
@@ -100,39 +102,17 @@ class HangmanApp:
         self.player = tkvideo(
             "first_1.mp4",
             self.video_label,
-            loop=1,
+            loop=0,
             size=(600, 400)
         )
 
         self.player.play()
-
         winsound.PlaySound(
             "welcome.wav",
             winsound.SND_ASYNC | winsound.SND_LOOP
         )
 
-        # Canvas Above Video
-        self.canvas.place(x=0, y=0)
-        self.canvas.config(highlightthickness=0) 
-        self.canvas.create_text(
-            300,
-            120,
-            text="MADE BY SHAILY DADRIWAL\n\nWelcome to Hangman",
-            font=("Arial", 25, "bold"),
-            fill="white",
-            justify="center"
-        )
-
-        start_btn = tk.Button(
-            self.root,
-            text="Start Game",
-            font=("Arial", 18),
-            bg="green",
-            fg="white",
-            command=self.show_category
-        )
-
-        self.canvas.create_window(
+        _window(
             300,
             230,
             window=start_btn
@@ -141,8 +121,9 @@ class HangmanApp:
     # ------------------ Category ------------------
     def show_category(self):
          
-        winsound.PlaySound(None, winsound.SND_PURGE)
- 
+        if hasattr(self, "video_label"):
+           self.video_label.destroy() 
+
         self.clear_widgets()
 
         self.set_background("second.jpg")
@@ -226,7 +207,29 @@ class HangmanApp:
 
             self.buttons[letter] = btn
 
-            x += 50
+            x += 50# Canvas Above Video
+        self.canvas.place(x=0, y=0)
+        self.canvas.lift()  
+        self.canvas.config(highlightthickness=0) 
+        self.canvas.create_text(
+            300,
+            120,
+            text="MADE BY SHAILY DADRIWAL\n\nWelcome to Hangman",
+            font=("Arial", 25, "bold"),
+            fill="white",
+            justify="center"
+        )
+
+        start_btn = tk.Button(
+            self.root,
+            text="Start Game",
+            font=("Arial", 18),
+            bg="green",
+            fg="white",
+            command=self.show_category
+        )
+
+        self.canvas.create
 
             if (i + 1) % 9 == 0:
                 x = 50
