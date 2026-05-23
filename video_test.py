@@ -231,7 +231,7 @@ class HangmanApp:
 
         self.canvas.create
 
-            if (i + 1) % 9 == 0:
+        if (i + 1) % 9 == 0:
                 x = 50
                 y += 40
 
