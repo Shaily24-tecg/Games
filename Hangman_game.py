@@ -59,7 +59,7 @@ class HangmanApp:
     # ------------------ Welcome ------------------
     def show_welcome(self):
         self.clear_widgets()
-        self.set_background("first_1.mp4")  # Set your welcome background image here
+        self.set_background("first")  # Set your welcome background image here
 
         winsound.PlaySound("welcome.wav", winsound.SND_ASYNC | winsound.SND_LOOP)
 
