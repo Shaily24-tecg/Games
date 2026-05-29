@@ -6,15 +6,19 @@ from PIL import ImageTk
 from tkinter import *
 from tkvideo import tkvideo
 
+
 # ------------------ Load Words ------------------
 def load_words():
+
     words = {}
     current_category = None
     category_order = ["fruits", "vegetables", "countries"]
     index = 0
 
     with open("words.txt", "r", encoding="utf-8") as file:
+
         for line in file:
+
             line = line.strip()
 
             if not line:
@@ -22,7 +26,9 @@ def load_words():
                 continue
 
             if current_category is None:
+
                 if index < len(category_order):
+
                     current_category = category_order[index]
                     words[current_category] = []
                     index += 1
@@ -39,20 +45,22 @@ word_data = load_words()
 class HangmanApp:
 
     def __init__(self, root):
+
         self.root = root
         self.root.title("Hangman Game")
         self.root.geometry("600x400")
         self.root.resizable(False, False)
+        self.root.configure(bg="black")
 
         self.canvas = tk.Canvas(
-        root,
-        width=600,
-        height=400,
-        bg="black",
-        highlightthickness=0
+            root,
+            width=600,
+            height=400,
+            bg="black",
+            highlightthickness=0
         )
 
-        self.canvas.pack(fill="both", expand=True)
+        self.canvas.place(x=0, y=0)
 
         self.current_word = ""
         self.guessed_letters = []
@@ -81,48 +89,100 @@ class HangmanApp:
     # ------------------ Clear Widgets ------------------
     def clear_widgets(self):
 
-        if hasattr(self, "video_label"):
-           self.video_label.destroy()
-
         for widget in self.root.winfo_children():
-           if widget != self.canvas:
-              widget.destroy()
+
+            if widget != self.canvas:
+                widget.destroy()
 
         self.canvas.delete("all")
 
-    # ------------------ Welcome ------------------
+    # ------------------ Welcome Screen ------------------
     def show_welcome(self):
 
         self.clear_widgets()
 
+        # Loading Image
+        self.loading_img = PILImage.open("first.jpg")
+        self.loading_img = self.loading_img.resize((600, 400))
+
+        self.loading_photo = ImageTk.PhotoImage(self.loading_img)
+
+        self.loading_label = Label(
+            self.root,
+            image=self.loading_photo,
+            bd=0
+        )
+
+        self.loading_label.place(x=0, y=0)
+
+        self.root.update()
+
         # Video Background
         self.video_label = Label(self.root)
-        self.video_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+        self.video_label.place(
+            x=0,
+            y=0,
+            relwidth=1,
+            relheight=1
+        )
 
         self.player = tkvideo(
-            "first_1.mp4",
+            "first.gif",
             self.video_label,
-            loop=0,
+            loop=1,
             size=(600, 400)
         )
 
         self.player.play()
+
+        self.root.after(
+            1200,
+            self.loading_label.destroy
+        )
+
+        # Sound
         winsound.PlaySound(
             "welcome.wav",
             winsound.SND_ASYNC | winsound.SND_LOOP
         )
 
-        _window(
+        # Text
+        self.canvas.create_text(
             300,
-            230,
+            120,
+            text="MADE BY SHAILY DADRIWAL\n\nWelcome to Hangman",
+            font=("Arial", 24, "bold"),
+            fill="white",
+            justify="center"
+        )
+
+        # Button
+        start_btn = tk.Button(
+            self.root,
+            text="Start Game",
+            font=("Arial", 18),
+            bg="green",
+            fg="white",
+            command=self.show_category
+        )
+
+        self.canvas.create_window(
+            300,
+            250,
             window=start_btn
         )
 
-    # ------------------ Category ------------------
+    # ------------------ Category Screen ------------------
     def show_category(self):
-         
+
+        winsound.PlaySound(
+            None,
+            winsound.SND_PURGE
+        )
+
         if hasattr(self, "video_label"):
-           self.video_label.destroy() 
+            self.video_label.destroy()
 
         self.clear_widgets()
 
@@ -150,17 +210,22 @@ class HangmanApp:
                 command=lambda c=category: self.start_game(c)
             )
 
-            self.canvas.create_window(300, y, window=btn)
+            self.canvas.create_window(
+                300,
+                y,
+                window=btn
+            )
 
-            y += 50
+            y += 60
 
     # ------------------ Start Game ------------------
     def start_game(self, category):
 
-        self.current_word = random.choice(word_data[category])
+        self.current_word = random.choice(
+            word_data[category]
+        )
 
         self.guessed_letters = []
-
         self.attempts = 6
 
         self.show_game()
@@ -185,12 +250,13 @@ class HangmanApp:
             110,
             text=f"Attempts Left: {self.attempts}",
             font=("Arial", 18, "bold"),
-            fill="purple"
+            fill="yellow"
         )
 
         self.buttons = {}
 
-        x, y = 50, 180
+        x = 50
+        y = 180
 
         for i, letter in enumerate("abcdefghijklmnopqrstuvwxyz"):
 
@@ -203,35 +269,18 @@ class HangmanApp:
                 command=lambda l=letter: self.guess(l)
             )
 
-            self.canvas.create_window(x, y, window=btn)
+            self.canvas.create_window(
+                x,
+                y,
+                window=btn
+            )
 
             self.buttons[letter] = btn
 
-            x += 50# Canvas Above Video
-        self.canvas.place(x=0, y=0)
-        self.canvas.lift()  
-        self.canvas.config(highlightthickness=0) 
-        self.canvas.create_text(
-            300,
-            120,
-            text="MADE BY SHAILY DADRIWAL\n\nWelcome to Hangman",
-            font=("Arial", 25, "bold"),
-            fill="white",
-            justify="center"
-        )
+            x += 50
 
-        start_btn = tk.Button(
-            self.root,
-            text="Start Game",
-            font=("Arial", 18),
-            bg="green",
-            fg="white",
-            command=self.show_category
-        )
+            if (i + 1) % 9 == 0:
 
-        self.canvas.create
-
-        if (i + 1) % 9 == 0:
                 x = 50
                 y += 40
 
@@ -239,8 +288,10 @@ class HangmanApp:
     def display_word(self):
 
         return " ".join([
-            l if l in self.guessed_letters else "_"
-            for l in self.current_word
+
+            letter if letter in self.guessed_letters else "_"
+
+            for letter in self.current_word
         ])
 
     # ------------------ Guess ------------------
@@ -251,7 +302,9 @@ class HangmanApp:
 
         self.guessed_letters.append(letter)
 
-        self.buttons[letter].config(state="disabled")
+        self.buttons[letter].config(
+            state="disabled"
+        )
 
         if letter not in self.current_word:
 
@@ -279,7 +332,10 @@ class HangmanApp:
             text=f"Attempts Left: {self.attempts}"
         )
 
-        if all(l in self.guessed_letters for l in self.current_word):
+        if all(
+            letter in self.guessed_letters
+            for letter in self.current_word
+        ):
 
             self.show_result(True)
 
@@ -310,9 +366,17 @@ class HangmanApp:
                 winsound.SND_ASYNC
             )
 
-        result_text = "You Won!" if win else "You Lost!"
+        result_text = (
+            "You Won!"
+            if win else
+            "You Lost!"
+        )
 
-        color = "skyblue" if win else "red"
+        color = (
+            "skyblue"
+            if win else
+            "red"
+        )
 
         self.canvas.create_text(
             300,
@@ -330,30 +394,25 @@ class HangmanApp:
             fill="white"
         )
 
-        score_btn = tk.Button(
-            self.root,
-            text="Score",
-            bg="#fbc531",
-            command=self.show_score
-        )
-
-        self.canvas.create_window(
+        self.canvas.create_text(
             300,
-            220,
-            window=score_btn
+            190,
+            text=f"Score: {self.score}",
+            font=("Arial", 18, "bold"),
+            fill="yellow"
         )
 
         again_btn = tk.Button(
             self.root,
             text="Play Again",
             bg="green",
-            fg="black",
+            fg="white",
             command=self.show_category
         )
 
         self.canvas.create_window(
             300,
-            270,
+            250,
             window=again_btn
         )
 
@@ -367,35 +426,8 @@ class HangmanApp:
 
         self.canvas.create_window(
             300,
-            320,
+            300,
             window=quit_btn
-        )
-
-    # ------------------ Score ------------------
-    def show_score(self):
-
-        self.clear_widgets()
-
-        self.set_background("fourth.jpg")
-
-        self.canvas.create_text(
-            300,
-            150,
-            text=f"Score: {self.score}",
-            font=("Arial", 26, "bold"),
-            fill="white"
-        )
-
-        again_btn = tk.Button(
-            self.root,
-            text="Play Again",
-            command=self.show_category
-        )
-
-        self.canvas.create_window(
-            300,
-            230,
-            window=again_btn
         )
 
 
